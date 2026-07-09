@@ -1,0 +1,23 @@
+Django==4.2.*
+djangorestframework==3.16.*
+django-environ==0.14.*
+psycopg2-binary==2.9.*
+pgvector==0.4.*
+
+# File type detection from magic bytes (pure-Python, no libmagic C lib required)
+filetype==1.2.*
+
+# PDF text extraction
+PyMuPDF==1.24.*
+
+# Token counting (same BPE family as GPT/Groq models)
+tiktoken==0.7.*
+
+# Encoding detection fallback for non-UTF-8 text files
+chardet==5.*
+
+# Local embedding model (all-MiniLM-L6-v2, 384 dims)
+sentence-transformers==3.*
+
+# Groq LLM API client
+groq==0.11.*
