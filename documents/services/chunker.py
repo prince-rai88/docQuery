@@ -88,6 +88,9 @@ def extract_text_from_pdf(file_bytes: bytes) -> str:
     doc.close()
 
     full_text = "\n".join(pages).strip()
+    # PostgreSQL rejects NUL bytes (0x00) in text columns; strip them here.
+    # PyMuPDF can emit them from embedded fonts or PDF form fields.
+    full_text = full_text.replace("\x00", "")
     if not full_text:
         raise ValueError(
             "No extractable text found in this PDF. "

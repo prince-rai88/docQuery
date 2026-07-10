@@ -192,7 +192,20 @@ class ChatView(APIView):
             "Chat query for document id=%s by user id=%s.", doc.pk, request.user.pk
         )
 
-        answer = answer_question(doc, question)
+        try:
+            answer = answer_question(doc, question)
+        except ValueError as exc:
+            # Config errors (e.g. missing/invalid GROQ_API_KEY)
+            return Response(
+                {"error": "configuration_error", "detail": str(exc)},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("Chat failed for document id=%s: %s", doc.pk, exc)
+            return Response(
+                {"error": "llm_error", "detail": "The LLM service returned an error. Please try again."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
 
         return Response(
             {
@@ -219,3 +232,17 @@ class ChunkListView(generics.ListAPIView):
     def get_queryset(self):
         doc = _get_document_or_404(self.kwargs["pk"], self.request.user)
         return Chunk.objects.filter(document=doc).order_by("chunk_index")
+
+
+# ---------------------------------------------------------------------------
+# Auth / Signup
+# ---------------------------------------------------------------------------
+from .serializers import UserSignupSerializer
+
+class SignupView(generics.CreateAPIView):
+    """
+    POST /api/auth/signup/
+    Creates a new User.
+    """
+    permission_classes = [permissions.AllowAny]
+    serializer_class = UserSignupSerializer

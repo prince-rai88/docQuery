@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 TOP_K_CHUNKS = 5           # number of chunks to retrieve per query
 MAX_HISTORY_TURNS = 6      # number of previous (user + assistant) turns to include
-GROQ_MODEL = "llama3-8b-8192"       # model served by Groq
+GROQ_MODEL = "llama-3.1-8b-instant"      # replaces decommissioned llama3-8b-8192
 MAX_COMPLETION_TOKENS = 1024        # cap on LLM answer length
 
 
@@ -44,9 +44,10 @@ def _get_groq_client():
         )
 
     api_key = settings.GROQ_API_KEY
-    if not api_key:
+    if not api_key or api_key.startswith("your-groq"):
         raise ValueError(
-            "GROQ_API_KEY is not set. Add it to your .env file."
+            "GROQ_API_KEY is not configured. "
+            "Get a free key at https://console.groq.com and add it to your .env file."
         )
     return Groq(api_key=api_key)
 
