@@ -1,5 +1,6 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { CommandPalette } from './CommandPalette';
 
 export default function Layout() {
   const { logout } = useAuth();
@@ -9,44 +10,52 @@ export default function Layout() {
     await logout();
   };
 
-  const isNavActive = (path: string) => {
-    if (path === '/' && location.pathname !== '/') return false;
-    return location.pathname.startsWith(path);
-  };
+  const isDashboardActive = location.pathname === '/';
+  const isUploadActive = location.pathname.startsWith('/upload');
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <nav className="bg-white border-b border-slate-200">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-canvas">
+      <CommandPalette />
+
+      <nav className="sticky top-0 z-40 bg-canvas/80 backdrop-blur-md border-b border-border">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8">
           <div className="flex justify-between h-16">
-            <div className="flex">
-              <div className="flex-shrink-0 flex items-center">
-                <span className="text-xl font-bold text-indigo-600">DocQuery</span>
+            <div className="flex items-center gap-8">
+              <div className="flex-shrink-0 flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-accent/20 border border-accent/30 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <span className="text-base font-semibold text-ink tracking-tight">DocQuery</span>
               </div>
-              <div className="hidden sm:-my-px sm:ml-8 sm:flex sm:space-x-8">
+
+              <div className="hidden sm:flex sm:items-center sm:gap-1">
                 <Link
                   to="/"
-                  className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                    isNavActive('/') && location.pathname === '/' ? 'border-indigo-500 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
-                  }`}
+                  className={isDashboardActive ? 'nav-pill-active' : 'nav-pill-inactive'}
                 >
                   Dashboard
                 </Link>
                 <Link
                   to="/upload"
-                  className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                    isNavActive('/upload') ? 'border-indigo-500 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
-                  }`}
+                  className={isUploadActive ? 'nav-pill-active' : 'nav-pill-inactive'}
                 >
                   Upload
                 </Link>
               </div>
             </div>
-            <div className="flex items-center">
+
+            <div className="flex items-center gap-2">
               <button
-                onClick={handleLogout}
-                className="text-sm font-medium text-slate-500 hover:text-slate-700"
+                type="button"
+                onClick={() => window.dispatchEvent(new CustomEvent('open-command-palette'))}
+                className="hidden sm:inline-flex items-center gap-2 px-3 py-2 text-xs text-ink-faint bg-surface border border-border rounded-card hover:bg-white/5 hover:text-ink-muted active:bg-white/10 transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
               >
+                <span>Search</span>
+                <kbd className="px-1.5 py-0.5 bg-white/5 border border-border rounded text-[10px]">⌘K</kbd>
+              </button>
+              <button onClick={handleLogout} className="btn-ghost">
                 Logout
               </button>
             </div>
@@ -54,7 +63,7 @@ export default function Layout() {
         </div>
       </nav>
 
-      <main className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <main className="max-w-6xl mx-auto py-8 px-4 sm:px-8">
         <Outlet />
       </main>
     </div>

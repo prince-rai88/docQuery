@@ -38,22 +38,26 @@ export default function UploadPage() {
 
   return (
     <div className="max-w-xl mx-auto">
-      <h1 className="text-2xl font-bold text-slate-900 mb-6">Upload Document</h1>
-      
+      <h1 className="text-2xl font-semibold text-ink mb-2 tracking-tight">Upload Document</h1>
+      <p className="text-sm text-ink-muted mb-6">PDF or plain text, up to 20 MB</p>
+
       {error && (
-        <div className="mb-6 bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg shadow-sm flex justify-between items-center">
-          <span className="text-sm">{error}</span>
-          <button onClick={resetForm} className="text-red-700 hover:text-red-900 underline text-sm ml-4 font-medium whitespace-nowrap">
+        <div className="mb-6 alert-error flex justify-between items-center gap-4">
+          <span>{error}</span>
+          <button
+            onClick={resetForm}
+            className="text-red-400 hover:text-red-300 active:text-red-200 underline text-sm font-medium whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-canvas rounded transition-colors duration-150"
+          >
             Try again
           </button>
         </div>
       )}
 
-      <UploadForm 
-        onUpload={handleUpload} 
-        isUploading={isUploading} 
-        isReady={isReady} 
-        onReset={resetForm} 
+      <UploadForm
+        onUpload={handleUpload}
+        isUploading={isUploading}
+        isReady={isReady}
+        onReset={resetForm}
       />
     </div>
   );

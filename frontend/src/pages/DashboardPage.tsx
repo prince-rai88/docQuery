@@ -1,25 +1,21 @@
 import { useDocuments } from '../hooks/useDocuments';
-import { DocumentCard } from '../components/DocumentCard';
+import { DocumentCard, getBentoClass } from '../components/DocumentCard';
+import { DocumentCardSkeleton } from '../components/DocumentCardSkeleton';
 import { EmptyState } from '../components/EmptyState';
 
+const BENTO_THRESHOLD = 4;
 
 export default function DashboardPage() {
   const { documents, isLoading, error, deleteDocument, refetch } = useDocuments();
+  const useBento = documents.length >= BENTO_THRESHOLD;
 
   if (isLoading) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 mb-6">Your Documents</h1>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <h1 className="text-2xl font-semibold text-ink mb-6 tracking-tight">Your Documents</h1>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-white border border-slate-200 rounded-lg shadow-sm p-6 animate-pulse">
-              <div className="h-4 bg-slate-200 rounded w-3/4 mb-4"></div>
-              <div className="h-3 bg-slate-200 rounded w-1/2 mb-6"></div>
-              <div className="flex space-x-3 mt-4">
-                <div className="h-8 bg-slate-200 rounded flex-1"></div>
-                <div className="h-8 bg-slate-200 rounded w-16"></div>
-              </div>
-            </div>
+            <DocumentCardSkeleton key={i} className={i === 1 ? 'md:col-span-2 md:row-span-2' : ''} />
           ))}
         </div>
       </div>
@@ -29,12 +25,9 @@ export default function DashboardPage() {
   if (error) {
     return (
       <div>
-        <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg flex items-center justify-between shadow-sm">
+        <div className="alert-error flex items-center justify-between gap-4">
           <p>{error}</p>
-          <button 
-            onClick={refetch}
-            className="px-4 py-2 border border-red-600 text-red-700 hover:bg-red-100 rounded-md text-sm font-medium transition-colors"
-          >
+          <button onClick={refetch} className="btn-secondary shrink-0">
             Retry
           </button>
         </div>
@@ -45,7 +38,7 @@ export default function DashboardPage() {
   if (documents.length === 0) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 mb-6">Your Documents</h1>
+        <h1 className="text-2xl font-semibold text-ink mb-6 tracking-tight">Your Documents</h1>
         <EmptyState />
       </div>
     );
@@ -53,13 +46,24 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-900 mb-6">Your Documents</h1>
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {documents.map((doc) => (
-          <DocumentCard 
-            key={doc.id} 
-            document={doc} 
-            onDelete={deleteDocument} 
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-semibold text-ink tracking-tight">Your Documents</h1>
+        <span className="text-sm text-ink-faint">{documents.length} total</span>
+      </div>
+      <div
+        className={
+          useBento
+            ? 'grid grid-cols-1 gap-4 md:grid-cols-3 auto-rows-fr'
+            : 'grid grid-cols-1 gap-4 md:grid-cols-3'
+        }
+      >
+        {documents.map((doc, index) => (
+          <DocumentCard
+            key={doc.id}
+            document={doc}
+            onDelete={deleteDocument}
+            className={useBento ? getBentoClass(index) : ''}
+            featured={useBento && index === 0}
           />
         ))}
       </div>
