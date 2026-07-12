@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import { apiClient, getCookie } from './client';
 
 export const authApi = {
@@ -7,7 +8,7 @@ export const authApi = {
   login: async (formData: URLSearchParams) => {
     const csrfToken = getCookie('csrftoken') || '';
     formData.append('csrfmiddlewaretoken', csrfToken);
-    formData.append('next', '/api/documents/'); // Redirect to existing API view instead of 404 profile
+    formData.append('next', `${API_BASE_URL}/api/documents/`); // Redirect to existing API view instead of 404 profile
     const response = await apiClient.post('/auth/login/', formData, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
