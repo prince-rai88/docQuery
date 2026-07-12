@@ -2,7 +2,7 @@ import axios from 'axios';
 import { API_BASE_URL } from '../config';
 
 export const apiClient = axios.create({
-  baseURL: API_BASE_URL ? `${API_BASE_URL}/api` : '/api',
+  baseURL: API_BASE_URL,
   timeout: 60_000,
   withCredentials: true,
 });

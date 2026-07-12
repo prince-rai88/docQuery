@@ -8,6 +8,7 @@ distro==1.9.0
 Django==4.2.30
 django-cors-headers==4.9.0
 django-environ==0.14.0
+django-storages[s3]==1.14.6
 djangorestframework==3.16.1
 filelock==3.29.7
 filetype==1.2.0
@@ -53,3 +54,4 @@ transformers==4.57.6
 typing-inspection==0.4.2
 typing_extensions==4.16.0
 urllib3==2.7.0
+whitenoise==6.9.0

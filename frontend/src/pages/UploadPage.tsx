@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { UploadForm } from '../components/UploadForm';
 import { documentsApi } from '../api/documents';
 
@@ -6,6 +7,7 @@ export default function UploadPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -22,8 +24,9 @@ export default function UploadPage() {
     setIsUploading(true);
     setError(null);
     try {
-      await documentsApi.upload(file, title);
+      const document = await documentsApi.upload(file, title);
       setIsReady(true);
+      navigate(`/documents/${document.id}/chat`);
     } catch (err: any) {
       setError(err.response?.data?.detail || 'An error occurred while uploading. Please try again.');
     } finally {

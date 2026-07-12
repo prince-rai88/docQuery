@@ -32,7 +32,6 @@ from .serializers import (
     DocumentStatusSerializer,
     DocumentUploadSerializer,
 )
-from .services.pipeline import process_document
 from .services.rag import answer_question
 
 logger = logging.getLogger(__name__)
@@ -92,15 +91,10 @@ class DocumentListCreateView(generics.ListCreateAPIView):
         document = upload_serializer.save()
 
         logger.info(
-            "Document id=%s uploaded by user id=%s; launching pipeline.",
+            "Document id=%s uploaded by user id=%s; queued for processing.",
             document.pk,
             request.user.pk,
         )
-
-        # v1: run synchronously in the request cycle.
-        # v2: replace with process_document.delay(document.pk) (Celery).
-        process_document(document.pk)
-        document.refresh_from_db()
 
         read_serializer = DocumentSerializer(document, context={"request": request})
         return Response(read_serializer.data, status=status.HTTP_201_CREATED)
@@ -246,3 +240,11 @@ class SignupView(generics.CreateAPIView):
     """
     permission_classes = [permissions.AllowAny]
     serializer_class = UserSignupSerializer
+
+
+class HealthCheckView(APIView):
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+
+    def get(self, request):
+        return Response({"status": "ok"})

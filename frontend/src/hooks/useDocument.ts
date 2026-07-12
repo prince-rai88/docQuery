@@ -8,6 +8,7 @@ export const useDocument = (id: number | undefined) => {
   const [error, setError] = useState<string | null>(null);
 
   const timerRef = useRef<number | null>(null);
+  const documentStatus = document?.status;
 
   const fetchDocument = useCallback(async () => {
     if (!id) return;
@@ -29,7 +30,7 @@ export const useDocument = (id: number | undefined) => {
   }, [id, fetchDocument]);
 
   useEffect(() => {
-    if (document?.status === 'processing' && id) {
+    if (documentStatus && ['uploaded', 'processing'].includes(documentStatus) && id) {
       timerRef.current = window.setInterval(async () => {
         try {
           const statusResult = await documentsApi.getStatus(id);
@@ -45,7 +46,7 @@ export const useDocument = (id: number | undefined) => {
           if (statusResult.status !== 'processing') {
              if (timerRef.current) clearInterval(timerRef.current);
           }
-        } catch (e) {
+        } catch {
              // Handle poll error silently
         }
       }, 3000);
@@ -54,7 +55,7 @@ export const useDocument = (id: number | undefined) => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [document?.status, id]);
+  }, [documentStatus, id]);
 
   return { document, isLoading, error, refetch: fetchDocument };
 };

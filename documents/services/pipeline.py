@@ -43,14 +43,16 @@ def process_document(document_id: int) -> None:
         logger.error("process_document called with non-existent id=%s", document_id)
         return
 
-    # Guard: only process documents that haven't started yet
-    if doc.status not in (Document.Status.UPLOADED,):
+    # The worker claims a document by moving it to processing before invoking
+    # this function. Accept uploaded too to keep the function usable in tasks.
+    if doc.status not in (Document.Status.UPLOADED, Document.Status.PROCESSING):
         logger.warning(
             "Skipping document id=%s — status is already '%s'.", document_id, doc.status
         )
         return
 
-    _set_status(doc, Document.Status.PROCESSING)
+    if doc.status == Document.Status.UPLOADED:
+        _set_status(doc, Document.Status.PROCESSING)
     logger.info("Processing document id=%s title='%s'", doc.pk, doc.title)
 
     try:

@@ -93,6 +93,11 @@ class Document(models.Model):
         blank=True,
         help_text="Timestamp when all chunks were embedded and status became 'ready'.",
     )
+    processing_started_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Timestamp when the background worker claimed this document.",
+    )
     error_message = models.TextField(
         null=True,
         blank=True,

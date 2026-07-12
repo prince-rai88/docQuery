@@ -6,9 +6,10 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
-from documents.views import SignupView
+from documents.views import HealthCheckView, SignupView
 
 urlpatterns = [
+    path("healthz/", HealthCheckView.as_view(), name="health-check"),
     path("admin/", admin.site.urls),
     # Documents API — all document/chunk/chat endpoints
     path("api/documents/", include("documents.urls", namespace="documents")),

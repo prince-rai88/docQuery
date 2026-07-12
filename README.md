@@ -87,6 +87,12 @@ python manage.py runserver
 # API → http://127.0.0.1:8000/api/
 ```
 
+In a second terminal, start the document worker:
+
+```bash
+python manage.py process_documents
+```
+
 ### 4. Frontend
 
 ```bash
@@ -97,6 +103,44 @@ npm run dev
 ```
 
 Open **http://localhost:5173**, sign up, upload a document, and chat once status is **ready**.
+
+## Deployment (Vercel + Render + Supabase)
+
+The repository includes `render.yaml` and `frontend/vercel.json`. They deploy the
+API as a Render web service, document processing as a separate Render worker, and
+proxy browser `/api/*` requests through Vercel. The proxy keeps Django's session
+and CSRF cookies first-party instead of relying on third-party cookies.
+
+### Vercel
+
+Create the Vercel project with `frontend` as its root directory. Use the default
+Vite build command (`npm run build`) and output directory (`dist`). Do **not** set
+`VITE_API_URL`; `frontend/vercel.json` proxies `/api/*` to the Render backend.
+
+### Render
+
+Create the services from `render.yaml` at the repository root, or configure an
+equivalent web service and worker manually. Set every `sync: false` variable on
+both services:
+
+- `SECRET_KEY` — a long random Django secret.
+- `DATABASE_URL` — the Supabase PostgreSQL connection string with the `vector`
+  extension enabled.
+- `GROQ_API_KEY` — required for chat answers.
+- `SUPABASE_STORAGE_ENDPOINT`, `SUPABASE_STORAGE_BUCKET`,
+  `SUPABASE_STORAGE_ACCESS_KEY`, and `SUPABASE_STORAGE_SECRET_KEY` — Supabase
+  Storage S3 credentials for durable uploaded files shared by the web service and
+  worker.
+
+The supplied configuration runs migrations and `collectstatic` before deployment,
+checks `/healthz/`, and uses `gunicorn` bound to Render's `$PORT`.
+
+### Supabase prerequisites
+
+Enable the `vector` Postgres extension before the first Render deployment. Create
+a private Storage bucket for uploaded documents and use its S3-compatible endpoint
+and access keys in the Render variables above. `DATABASE_SSLMODE=require` is set
+for production in `render.yaml`.
 
 <br />
 

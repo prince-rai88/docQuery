@@ -1,3 +1,9 @@
-from django.test import TestCase
+from django.test import SimpleTestCase
 
-# Create your tests here.
+
+class HealthCheckTests(SimpleTestCase):
+    def test_health_check_is_public(self):
+        response = self.client.get("/healthz/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"status": "ok"})
