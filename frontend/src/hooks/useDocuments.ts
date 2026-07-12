@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios';
 import { useState, useEffect, useCallback } from 'react';
 import { documentsApi } from '../api/documents';
 import type { Document } from '../types';
@@ -13,8 +14,14 @@ export const useDocuments = () => {
     try {
       const data = await documentsApi.list();
       setDocuments(data);
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to loaded documents');
+    } catch (err: unknown) {
+      if (isAxiosError(err) && err.code === 'ECONNABORTED') {
+        setError('The server took too long to respond. Please try again.');
+      } else if (isAxiosError(err)) {
+        setError(err.response?.data?.detail || 'Failed to load documents. Please try again.');
+      } else {
+        setError('Failed to load documents. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }

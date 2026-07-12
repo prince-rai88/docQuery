@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { isAxiosError } from 'axios';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { documentsApi } from '../api/documents';
 import { authApi } from '../api/auth';
 
@@ -7,8 +8,10 @@ import { useNavigate } from 'react-router-dom';
 interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
+  error: string | null;
   login: (formData: URLSearchParams) => Promise<void>;
   logout: () => Promise<void>;
+  retry: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -16,25 +19,34 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
     try {
       // If we can fetch documents, we are authenticated
       await documentsApi.list();
       setIsAuthenticated(true);
-    } catch (error: any) {
-      if (error.response?.status === 403 || error.response?.status === 401) {
+    } catch (requestError: unknown) {
+      if (isAxiosError(requestError) && [401, 403].includes(requestError.response?.status ?? 0)) {
         setIsAuthenticated(false);
+      } else {
+        setError(
+          isAxiosError(requestError) && requestError.code === 'ECONNABORTED'
+            ? 'The server took too long to respond. Please try again.'
+            : 'Unable to reach the server. Please try again.'
+        );
       }
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   const login = async (formData: URLSearchParams) => {
     await authApi.getCsrf(); // make sure we have csrf cookie
@@ -54,7 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, error, login, logout, retry: checkAuth }}>
       {children}
     </AuthContext.Provider>
   );

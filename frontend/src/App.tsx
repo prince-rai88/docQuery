@@ -8,7 +8,7 @@ import UploadPage from './pages/UploadPage';
 import ChatPage from './pages/ChatPage';
 
 const ProtectedRoute = ({ children }: { children: React.JSX.Element }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, error, retry } = useAuth();
   if (isLoading) {
     return (
       <div className="min-h-screen bg-canvas p-8 animate-pulse">
@@ -25,6 +25,20 @@ const ProtectedRoute = ({ children }: { children: React.JSX.Element }) => {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="min-h-screen bg-canvas p-8">
+        <div className="max-w-xl mx-auto pt-20">
+          <div className="alert-error flex items-center justify-between gap-4">
+            <p>{error}</p>
+            <button onClick={retry} className="btn-secondary shrink-0">
+              Retry
+            </button>
           </div>
         </div>
       </div>
