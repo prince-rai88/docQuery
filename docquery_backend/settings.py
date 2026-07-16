@@ -19,7 +19,7 @@ if not SECRET_KEY:
 
 ALLOWED_HOSTS = env.list(
     "ALLOWED_HOSTS",
-    default=["localhost", "127.0.0.1", "docquery-backend.onrender.com"],
+    default=["localhost", "127.0.0.1", "docquery-pjyc.onrender.com"],
 )
 
 FRONTEND_ORIGIN = env.str(
