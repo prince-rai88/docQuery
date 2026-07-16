@@ -3,10 +3,8 @@ import type { Document, ChatMessage, DocumentStatus } from '../types';
 
 export const documentsApi = {
   list: async () => {
-    // Note: Django default pagination usually returns { count, next, previous, results }
-    // Let's assume pagination is configured; we'll return results
-    const response = await apiClient.get<{ results: Document[] }>('/documents/');
-    return response.data.results;
+    const response = await apiClient.get<any>('/documents/');
+    return Array.isArray(response.data) ? response.data : (response.data?.results || []);
   },
   get: async (id: number) => {
     const response = await apiClient.get<Document>(`/documents/${id}/`);
