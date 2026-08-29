@@ -11,7 +11,7 @@
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-pgvector-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Live Demo](https://img.shields.io/badge/Live_Demo-docquery.app-7C6FF0)](https://docquery.app)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-7C6FF0)](https://doc-query-gray.vercel.app/)
 
 </div>
 
